@@ -1,0 +1,8 @@
+{
+  "name": "Telegram bot for Secret Santa",
+  "description": "© kor0p",
+  "image": "",
+  "repository": "https://github.com/kor0p/secret-santa-telegram-bot",
+  "keywords": ["python"],
+  "addons": [ "heroku-postgresql"]
+}
