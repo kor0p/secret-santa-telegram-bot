@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from .models import User, Message
+from .models import User, Message, Event, Participant
 
 
 class UserForm(forms.ModelForm):
@@ -48,3 +48,13 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     search_fields = ['data']
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    search_fields = ['participants']
+
+
+@admin.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+    search_fields = ['event', 'user']

@@ -5,9 +5,18 @@ from typing import Union
 import string
 
 from telebot import types
+from django.utils.translation.trans_real import translation
 from django.contrib.auth.base_user import AbstractBaseUser
 
 JSON_COMMON_DATA = Union[list[...], dict[str, ...], int, str]
+
+
+def get_trans(lang):
+    return translation(lang)
+
+
+def get_lang(trans):
+    return trans._DjangoTranslation__language
 
 
 def random_str(n: int):
@@ -44,7 +53,13 @@ def mention_user(user: AbstractBaseUser):
 
 
 class callback(Enum):
-    TODO = dict[str, str]
+    user_settings = ('us', str, JSON_COMMON_DATA)  # action, value (new_event_id, etc)
+    events_main = ('em',)  # for back button in events_settings
+    events_settings = ('es', int)  # event_id (to edit)
+    event_admin = ('ea', int, str)  # event_id, action
+    event_admin_edit = ('eae', int, str)  # event_id, edit_type
+    event_admin_type = ('eat', int)  # event_id
+    event_admin_type_edit = ('eate', int, str)  # event_id, type
 
-    def create(self, **data: JSON_COMMON_DATA) -> str:
-        return json.dumps([self.name, data], separators=(',', ':'))
+    def create(self, *data: JSON_COMMON_DATA) -> str:
+        return json.dumps([self.value[0], data], separators=(',', ':'))

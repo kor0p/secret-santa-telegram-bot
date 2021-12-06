@@ -6,3 +6,4 @@ django-heroku==0.3.1  # heroku easy setup
 whitenoise==5.3.0  # static files
 pyTelegramBotAPI==4.2.1  # telebot - best api for telegram in python
 psycopg2==2.9.2  # PostgreSQL
+django-picklefield==3.0.1  # PickledObjectField

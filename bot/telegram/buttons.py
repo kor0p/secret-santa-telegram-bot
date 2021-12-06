@@ -1,12 +1,20 @@
-from typing import Union, Sequence
+from typing import Union, Iterable
 
 from telebot import types
 
+from .const import BACK_BTN
+
 
 def inline_buttons(
-    *buttons: Union[bool, Sequence[Union[dict, Sequence[str], bool]]], width=3
+    *buttons: Union[bool, Iterable[Union[dict, Iterable[str], bool]]], width=3, back=False
 ) -> types.InlineKeyboardMarkup:
     result_buttons = types.InlineKeyboardMarkup(row_width=width)
+
+    buttons = list(buttons)
+
+    if back:
+        buttons.append(((BACK_BTN, back),))
+
     for row in buttons:
         if not row:
             continue

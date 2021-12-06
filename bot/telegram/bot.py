@@ -7,7 +7,8 @@ from django.db import DatabaseError
 from telebot import TeleBot, types, logger
 from telebot.apihelper import ApiException, ApiTelegramException
 
-from .utils import JSON_COMMON_DATA
+from .hander_backends import DjangoHandlerBackend
+from .utils import JSON_COMMON_DATA, get_trans
 from ..models import Message, User
 
 logger.setLevel(logging.DEBUG)
@@ -43,19 +44,21 @@ class ExtraTeleBot(TeleBot):
             except json.JSONDecodeError:
                 continue
 
-            args = ()
-            kwargs = dict(user=User.create_from_tg(message.from_user)[0])
+            user = User.create_from_tg(message.from_user)[0]
+            _ = get_trans(user.language_code)
+            args = [user, _]
+            kwargs = {}
             if isinstance(callback_data, dict):
                 kwargs.update(callback_data)
             else:
-                args = callback_data
+                args.extend(callback_data)
 
             try:
                 self._exec_task(self.callback_query_handlers[_type], message, *args, **kwargs)
             except (ApiException, DatabaseError, AttributeError):  # try to send error to user
                 logger.exception('1')
                 try:
-                    self.answer_callback_query(message.id, 'Помилка серверу')
+                    self.answer_callback_query(message.id, _('Server Error'))
                 except ApiTelegramException:
                     logger.exception('2')
             finally:  # if there was error, just answer callback to remove it from queue
@@ -133,5 +136,29 @@ class ExtraTeleBot(TeleBot):
         except ApiTelegramException:
             return False
 
+    def _notify_command_handlers(self, handlers, new_messages):
+        if len(handlers) == 0:
+            return
+        for message in new_messages:
+            Message.add_tg_message(message)
+            for message_handler in handlers:
+                if self._test_message_handler(message_handler, message):
+                    user = User.create_from_tg(message.from_user)[0]
+                    self._exec_task(message_handler['function'], message, user, get_trans(user.language_code))
+                    break
 
-bot = ExtraTeleBot(os.environ.get('BOT_TOKEN'), threaded=False)
+    def register_next(self, chat_id: Union[int, str], callback: Callable, *args, **kwargs):
+        return self.register_next_step_handler_by_chat_id(chat_id, callback, *args, **kwargs)
+
+    def register_reply(self, message_id: int, callback: Callable, *args, **kwargs):
+        return self.register_for_reply_by_message_id(message_id, callback, *args, **kwargs)
+
+
+bot = ExtraTeleBot(
+    os.environ.get('BOT_TOKEN'),
+    parse_mode='HTML',
+    num_threads=10,
+    next_step_backend=DjangoHandlerBackend(id=0),
+    reply_backend=DjangoHandlerBackend(id=1),
+)
+bot_user = bot.get_me()

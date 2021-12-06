@@ -7,17 +7,21 @@ from django.db.models import (
     Manager,
     Model,
     DO_NOTHING,
+    SET_NULL,
     QuerySet,
     Min,
     ForeignKey,
     OneToOneField,
     BigIntegerField,
+    PositiveSmallIntegerField as TinyInt,
     BooleanField,
     CharField,
+    TextField,
     JSONField,
 )
 from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
+from picklefield.fields import PickledObjectField
 
 from telebot import types
 
@@ -42,6 +46,11 @@ BaseUser = get_user_model()
 NOT_REQUIRED = dict(null=True, blank=True)
 
 
+class ReverseRelationQuerySet(QuerySet):
+    def add(self, *objs: Base, bulk: bool = False):
+        ...
+
+
 class BaseManager(Manager):
     def get(self, **kwargs) -> Optional[Base]:
         try:
@@ -63,15 +72,7 @@ class Base(Model):
         return self
 
 
-class NonTgOrderedUserManager(BaseManager):
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.order_by('is_telegram_user', 'full_name')
-
-
 class User(Base):
-    objects = NonTgOrderedUserManager()
-
     is_bot = BooleanField(default=False)
     full_name = CharField(**NOT_REQUIRED, max_length=256)
     username = CharField(**NOT_REQUIRED, max_length=256)
@@ -79,11 +80,15 @@ class User(Base):
     bot_can_message = BooleanField(default=True)
     is_telegram_user = BooleanField(default=True)
 
+    active_participant = OneToOneField('Participant', **NOT_REQUIRED, on_delete=SET_NULL, related_name='_active_user')
+
     user = OneToOneField(BaseUser, on_delete=DO_NOTHING, related_name='tg_user', primary_key=True)
-    messages: QuerySet[Message]
+    messages: ReverseRelationQuerySet[Message]
+    participants: ReverseRelationQuerySet[Participant]
+    admin_events: ReverseRelationQuerySet[Event]
 
     def __str__(self):
-        return mark_safe(self.full_name + (f'<i> (з телеграму: {self.to_html()})</i>' if self.is_telegram_user else ''))
+        return mark_safe(self.full_name + (f'<i> (tg: {self.to_html()})</i>' if self.is_telegram_user else ''))
 
     def to_html(self):
         return html_user_url(self.user)
@@ -131,6 +136,8 @@ class Message(Base):
     content_type = CharField(max_length=64)
     data = JSONField(encoder=JSONEncoder)
 
+    event = ForeignKey('Event', on_delete=DO_NOTHING, related_name='messages', **NOT_REQUIRED)
+
     def __str__(self):
         return mark_safe(f'{self.message_id} - {self.content_type} by {self.user.to_html()}')
 
@@ -150,3 +157,62 @@ class Message(Base):
                 data=getattr(message, 'json', message.__dict__),
             ),
         )[0]
+
+
+class ForwardMessage(Base):
+    from_participant = ForeignKey('Participant', on_delete=DO_NOTHING, related_name='sent_messages')
+    to_participant = ForeignKey('Participant', on_delete=DO_NOTHING, related_name='received_messages')
+
+    data = JSONField(encoder=JSONEncoder)
+
+
+class Event(Base):
+    TYPE_SANTA = 'santa'
+    TYPE_SAINT_NICHOLAS = 'saint_nicholas'
+    TYPES = (
+        (TYPE_SANTA, 'Santa'),
+        (TYPE_SAINT_NICHOLAS, 'Saint Nicholas'),
+    )
+
+    STATUS_REGISTER_OPEN = 0
+    STATUS_REGISTER_CLOSED = 1
+    STATUS_PARTICIPANTS_DISTRIBUTED = 2
+    STATUSES = (
+        (STATUS_REGISTER_OPEN, 'Register opened'),
+        (STATUS_REGISTER_CLOSED, 'Register closed'),
+        (STATUS_PARTICIPANTS_DISTRIBUTED, 'Participants are already distributed'),
+    )
+
+    admin = ForeignKey(User, on_delete=DO_NOTHING, related_name='admin_events')
+
+    type = CharField(choices=TYPES, default=TYPE_SANTA, max_length=256)
+    status = TinyInt(choices=STATUSES, default=STATUS_REGISTER_OPEN)
+    name = CharField(max_length=256)
+    description = TextField(max_length=2048)
+
+    participants: ReverseRelationQuerySet[Participant]
+    messages: ReverseRelationQuerySet[Message]
+
+    def __str__(self):
+        return f'Event({self.name}, {self.description[:100]}, by {self.admin})'
+
+
+class Participant(Base):
+    user = ForeignKey(User, on_delete=DO_NOTHING, related_name='participants')
+    event = ForeignKey(Event, on_delete=DO_NOTHING, related_name='participants')
+    secret_good_buddy = OneToOneField('Participant', **NOT_REQUIRED, on_delete=SET_NULL, related_name='secret_santa')
+
+    wishes = TextField(**NOT_REQUIRED)
+    messages_as_santa = JSONField(default=list)
+    messages_as_buddy: JSONField(default=list)
+
+    def __str__(self):
+        return f'Participant({self.user}, {self.event})'
+
+
+class CallbackMessage(Base):
+    handler_id = TinyInt()
+    group_id = BigIntegerField()
+    fn = PickledObjectField()
+    args = PickledObjectField()
+    kwargs = PickledObjectField()
