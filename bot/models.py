@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 from typing import Union, Optional
 
@@ -148,13 +149,16 @@ class Message(Base):
 
     class Meta:
         ordering = ['message_id']
-        unique_together = ['message_id', 'user']
 
     @classmethod
     def add_tg_message(cls, message: Union[types.Message, types.CallbackQuery]) -> Message:
-        _date = getattr(message, 'message', message).date
+        _date = getattr(getattr(message, 'message', message), 'date', None) or datetime.utcnow().timestamp()
+        _id = getattr(message, 'id', None)
+        if not _id:
+            min_id = cls.objects.annotate(min_id=Min('id')).values()[0]['min_id']
+            _id = min(0, min_id) - 1
         return cls.objects.update_or_create(
-            message_id=message.id,
+            message_id=_id,
             date=_date,
             user=User.create_from_tg(message.from_user)[0],
             defaults=dict(
@@ -165,10 +169,16 @@ class Message(Base):
 
 
 class ForwardMessage(Base):
+    TYPE_BUDDY = 'buddy'
+    TYPE_SANTA = 'santa'
+    TYPES = (
+        (TYPE_BUDDY, 'Secret Good Buddy'),
+        (TYPE_SANTA, 'Secret Santa'),
+    )
+    type = CharField(choices=TYPES, max_length=256)
+    message_id = BigIntegerField()
     from_participant = ForeignKey('Participant', on_delete=DO_NOTHING, related_name='sent_messages')
     to_participant = ForeignKey('Participant', on_delete=DO_NOTHING, related_name='received_messages')
-
-    data = JSONField(encoder=JSONEncoder)
 
 
 class Event(Base):
@@ -206,10 +216,6 @@ class Participant(Base):
     user = ForeignKey(User, on_delete=DO_NOTHING, related_name='participants')
     event = ForeignKey(Event, on_delete=DO_NOTHING, related_name='participants')
     secret_good_buddy = OneToOneField('Participant', **NOT_REQUIRED, on_delete=SET_NULL, related_name='secret_santa')
-
-    wishes = TextField(**NOT_REQUIRED)
-    messages_as_santa = JSONField(default=list)
-    messages_as_buddy: JSONField(default=list)
 
     def __str__(self):
         return f'Participant({self.user}, {self.event})'

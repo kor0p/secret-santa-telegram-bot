@@ -136,6 +136,10 @@ class ExtraTeleBot(TeleBot):
         except ApiTelegramException:
             return False
 
+    def copy_message(self, *args, **kwargs):
+        message: types.MessageID = super().copy_message(*args, **kwargs)
+        return message.message_id
+
     def _notify_command_handlers(self, handlers, new_messages):
         if len(handlers) == 0:
             return
