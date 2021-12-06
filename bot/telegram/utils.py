@@ -12,11 +12,11 @@ JSON_COMMON_DATA = Union[list[...], dict[str, ...], int, str]
 
 
 def get_trans(lang):
-    return translation(lang)
+    return translation(lang).gettext
 
 
-def get_lang(trans):
-    return trans._DjangoTranslation__language
+def get_lang(gettext):
+    return gettext.__self__.language()
 
 
 def random_str(n: int):

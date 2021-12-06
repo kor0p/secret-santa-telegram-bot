@@ -14,6 +14,8 @@ import os
 
 import django_heroku
 
+AUTH_USER_MODEL = 'bot.AuthUser'
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

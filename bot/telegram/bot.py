@@ -29,7 +29,7 @@ class ExtraTeleBot(TeleBot):
         return super().callback_query_handler(func, **kwargs)
 
     def add_callback_query_handler(self, handler_dict: dict):
-        self.callback_query_handlers[handler_dict['filters']['func'].name] = handler_dict['function']
+        self.callback_query_handlers[handler_dict['filters']['func'].value[0]] = handler_dict['function']
 
     def process_new_callback_query(self, messages: list[types.CallbackQuery, ...]):
         for message in messages:

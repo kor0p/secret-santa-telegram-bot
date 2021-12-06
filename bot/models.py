@@ -19,7 +19,7 @@ from django.db.models import (
     TextField,
     JSONField,
 )
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.utils.safestring import mark_safe
 from picklefield.fields import PickledObjectField
 
@@ -39,9 +39,6 @@ class JSONEncoder(json.JSONEncoder):
                 dct = obj.__dict__
             dct.pop('json', 0)
             return dct
-
-
-BaseUser = get_user_model()
 
 NOT_REQUIRED = dict(null=True, blank=True)
 
@@ -72,6 +69,10 @@ class Base(Model):
         return self
 
 
+class AuthUser(AbstractUser):
+    id = BigIntegerField(primary_key=True)
+
+
 class User(Base):
     is_bot = BooleanField(default=False)
     full_name = CharField(**NOT_REQUIRED, max_length=256)
@@ -82,10 +83,14 @@ class User(Base):
 
     active_participant = OneToOneField('Participant', **NOT_REQUIRED, on_delete=SET_NULL, related_name='_active_user')
 
-    user = OneToOneField(BaseUser, on_delete=DO_NOTHING, related_name='tg_user', primary_key=True)
+    user = OneToOneField(AuthUser, on_delete=DO_NOTHING, related_name='tg_user', primary_key=True)
     messages: ReverseRelationQuerySet[Message]
     participants: ReverseRelationQuerySet[Participant]
     admin_events: ReverseRelationQuerySet[Event]
+
+    @property
+    def id(self):
+        return self.user_id
 
     def __str__(self):
         return mark_safe(self.full_name + (f'<i> (tg: {self.to_html()})</i>' if self.is_telegram_user else ''))
@@ -99,7 +104,7 @@ class User(Base):
 
         return cls.objects.update_or_create(
             is_bot=user.is_bot,
-            user=BaseUser.objects.update_or_create(
+            user=AuthUser.objects.update_or_create(
                 id=user.id,
                 defaults=dict(
                     first_name=user.first_name,
@@ -116,10 +121,10 @@ class User(Base):
 
     @classmethod
     def create_new_auth_user(cls, **kwargs):
-        min_id = BaseUser.objects.annotate(min_id=Min('id')).values()[0]['min_id']
+        min_id = AuthUser.objects.annotate(min_id=Min('id')).values()[0]['min_id']
         # custom users will have negative ids :)
 
-        return BaseUser.objects.create(
+        return AuthUser.objects.create(
             id=min(0, min_id) - 1,
             username='__' + random_str(50),
             **kwargs,

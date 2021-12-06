@@ -25,7 +25,7 @@ class DjangoHandlerBackend(HandlerBackend):
         callback_messages = CallbackMessage.objects.filter(
             handler_id=self.handler_id, group_id=handler_group_id
         )
-        handlers = [Handler(msg.fn, msg.args, msg.kwargs) for msg in callback_messages]
+        handlers = [Handler(msg.fn, *msg.args, **msg.kwargs) for msg in callback_messages]
         callback_messages.delete()
 
         return handlers

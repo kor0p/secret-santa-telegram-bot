@@ -49,6 +49,7 @@ def sync_event(event: Event, _):
             message_id=message.message_id,
             text=text,
             reply_markup=buttons,
+            disable_web_page_preview=True,
         )
 
 
@@ -123,20 +124,20 @@ You may add here place and time of event, your contact, or other important info
 
 def new_event_command_description(message: Message, lang, user_id: int, name: str):
     _ = get_trans(lang)
-    user = User.objects.get(id=user_id)
+    user = User.objects.get(user_id=user_id)
     description = message.text
 
     type = Event.TYPE_SANTA
     if re.match('(nicholas)|(nicolaus)|(миколай)', name + '\n' + description, re.IGNORECASE):
         type = Event.TYPE_SAINT_NICHOLAS
 
-    Event.objects.create(
+    event = Event.objects.create(
         admin=user,
         type=type,
         name=name,
         description=description,
-        participants=[user],
     )
+    Participant.objects.create(user=user, event=event)
 
     bot.send_message(
         user.id,
@@ -148,7 +149,10 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
 @bot.callback_query_handler(callback.events_main)
 def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, edit_id=False):
     if isinstance(msg_cbq, CallbackQuery):
-        edit_id = msg_cbq.inline_message_id
+        if msg_cbq.inline_message_id:
+            edit_id = msg_cbq.inline_message_id
+        elif not edit_id:
+            edit_id = (msg_cbq.message.message_id, user.id)
 
     events = user.admin_events
     if not events:
@@ -161,11 +165,14 @@ def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, edit_
     buttons = inline_buttons(
         (
             (event.name, callback.events_settings.create(event.id, edit_id))
-            for event in events
+            for event in events.all()
         ),
+        width=1,
     )
 
-    if edit_id:
+    if edit_id and isinstance(edit_id, tuple):
+        bot.edit_message_text(message_id=edit_id[0], chat_id=edit_id[1], text=text, reply_markup=buttons)
+    elif edit_id:
         bot.edit_message_text(inline_message_id=edit_id, text=text, reply_markup=buttons)
     else:
         bot.send_message(user.id, text, reply_markup=buttons)
@@ -175,20 +182,23 @@ def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, edit_
 def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_id: int, edit_id=False):
     if isinstance(msg_cbq, CallbackQuery):
         message = msg_cbq.message
-        edit_id = msg_cbq.inline_message_id
+        if msg_cbq.inline_message_id:
+            edit_id = msg_cbq.inline_message_id
+        elif not edit_id:
+            edit_id = (message.message_id, user.id)
     else:
         message = msg_cbq
 
     event = Event.objects.get(id=event_id)
     if event.status == Event.STATUS_REGISTER_OPEN:
         register_buttons = (
-            _('Close registration'), callback.event_admin.create(event_id, 'register_close'),
+            (_('Close registration'), callback.event_admin.create(event_id, 'register_close')),
             dict(text=_('Share event to join'), another_chat_url=event.name),
         )
     elif event.status == Event.STATUS_REGISTER_CLOSED:
         register_buttons = (
-            _('Open registration'), callback.event_admin.create(event_id, 'register_open'),
-            _('Distribute participants'), callback.event_admin.create(event_id, 'distribute_users'),
+            (_('Open registration'), callback.event_admin.create(event_id, 'register_open')),
+            (_('Distribute participants'), callback.event_admin.create(event_id, 'distribute_users')),
         )
     else:
         register_buttons = ()
@@ -198,12 +208,17 @@ Event "{event.name}"
 Description:
 {event.description}
 
-Type: {event.get_type_display()}
-Status: {event.get_status_display()}
+Type: {type}
+Status: {status}
 
 Participants:
 {participants}
-''').format(event=event, participants=', '.join(pt.user.to_html() for pt in event.participants.all()))
+''').format(
+        event=event,
+        type=event.get_type_display(),
+        status=event.get_status_display(),
+        participants=', '.join(pt.user.to_html() for pt in event.participants.all()),
+    )
     buttons = inline_buttons(
         (
             (_('Edit name'), callback.event_admin_edit.create(event_id, 'name')),
@@ -211,13 +226,18 @@ Participants:
             (_('Edit type'), callback.event_admin_type.create(event_id, message.id)),
             *register_buttons,
         ),
+        width=1,
         back=callback.events_main.create(),
     )
 
-    if edit_id:
-        bot.edit_message_text(inline_message_id=edit_id, text=text, reply_markup=buttons)
+    if edit_id and isinstance(edit_id, tuple):
+        bot.edit_message_text(
+            message_id=edit_id[0], chat_id=edit_id[1], text=text, reply_markup=buttons, disable_web_page_preview=True
+        )
+    elif edit_id:
+        bot.edit_message_text(inline_message_id=edit_id, text=text, reply_markup=buttons, disable_web_page_preview=True)
     else:
-        bot.send_message(user.id, text, reply_markup=buttons)
+        bot.send_message(user.id, text, reply_markup=buttons, disable_web_page_preview=True)
 
 
 @bot.callback_query_handler(callback.event_admin_edit)
@@ -244,6 +264,7 @@ def event_admin_type(cbq: CallbackQuery, user: User, _, event_id: int):
                 (value, callback.event_admin_type_edit.create(event_id, name))
                 for name, value in Event.TYPES
             ),
+            width=1,
             back=callback.events_settings.create(event_id)
         )
     )

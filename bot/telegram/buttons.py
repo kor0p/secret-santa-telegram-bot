@@ -35,5 +35,5 @@ def inline_buttons(
 
             row_buttons.append(types.InlineKeyboardButton(**options))
 
-        result_buttons.row(*row_buttons)
+        result_buttons.add(*row_buttons)
     return result_buttons
