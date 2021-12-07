@@ -72,7 +72,7 @@ class Base(Model):
 
 
 class AuthUser(AbstractUser):
-    id = BigIntegerField(primary_key=True)
+    id = BigIntegerField(primary_key=True, auto_created=True)
 
 
 class User(Base):
