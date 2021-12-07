@@ -20,7 +20,7 @@ from django.db.models import (
     TextField,
     JSONField,
 )
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
 from picklefield.fields import PickledObjectField
 
@@ -41,6 +41,8 @@ class JSONEncoder(json.JSONEncoder):
             dct.pop('json', 0)
             return dct
 
+
+AuthUser = get_user_model()
 
 NOT_REQUIRED = dict(null=True, blank=True)
 
@@ -69,10 +71,6 @@ class Base(Model):
             setattr(self, key, value)
         self.save(update_fields=tuple(kwargs.keys()))
         return self
-
-
-class AuthUser(AbstractUser):
-    id = BigIntegerField(primary_key=True, auto_created=True)
 
 
 class User(Base):

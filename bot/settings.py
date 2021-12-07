@@ -14,8 +14,6 @@ import os
 
 import django_heroku
 
-AUTH_USER_MODEL = 'bot.AuthUser'
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'bot',
+    'bot.apps.SecretSantaBotConfig',
 ]
 
 MIDDLEWARE = [
