@@ -41,6 +41,7 @@ class JSONEncoder(json.JSONEncoder):
             dct.pop('json', 0)
             return dct
 
+
 NOT_REQUIRED = dict(null=True, blank=True)
 
 

@@ -22,14 +22,18 @@ admin_users = json.loads(os.environ.get('ADMIN_IDS'))
 def get_join_button_text(event, _):
     if event.status == event.STATUS_REGISTER_OPEN:
         return _('''
-Click here to join the event "{event.name}"
+Welcome to <b>{event.name}</b>
+{event.description}
 
 Participants:
 {participants}
+
+Click here to join or leave this event
 ''').format(event=event, participants=', '.join(pt.user.to_html() for pt in event.participants.all()))
     else:
         return _('''
-Registration for event "{event.name}" already closed!
+Registration for <b>{event.name}</b> already closed!
+{event.description}
 
 Participants:
 {participants}
@@ -41,12 +45,7 @@ def get_join_button_inline_buttons(event, _):
         return None
 
     return inline_buttons(
-        (
-            dict(
-                text=f'{_("Join")} {LINK_BTN}',
-                url=f't.me/{bot_user.username}?start={event.id}',
-            ),
-        ),
+        (dict(text=LINK_BTN, url=f't.me/{bot_user.username}?start={event.id}'),),
     )
 
 
@@ -65,10 +64,10 @@ def sync_event(event: Event, _):
 def toggle_user_for_event(user: User, event: Event, _):
     participant, created = Participant.objects.get_or_create(user=user, event=event)
 
-    if created:
-        user.update(active_participant=participant)
-    else:
+    if not created:
         participant.delete()
+        participant = None
+    user.update(active_participant=participant)
 
     sync_event(event, _)
 
@@ -84,11 +83,11 @@ def start_command(message: Message, user: User, _):
 
         if toggle_user_for_event(user, event, _):
             return bot.send_message(
-                user.id, _('You are successfully registered for {event.name}!').format(event=event)
+                user.id, _('You are successfully registered for <b>{event.name}</b>!').format(event=event)
             )
         else:
             return bot.send_message(
-                user.id, _('You are successfully left "{event.name}" event').format(event=event)
+                user.id, _('You are successfully left <b>{event.name}</b> event').format(event=event)
             )
 
     # starting bot or help flow
@@ -109,10 +108,7 @@ Hi User!
 
 @bot.message_handler(commands=['new_event'])
 def new_event_command_start(message: Message, user: User, _):
-    bot.send_message(
-        user.id,
-        _('Please, send name for your event below'),
-    )
+    bot.send_message(user.id, _('Please, send name for your event below'))
 
     bot.register_next(user.id, new_event_command_name, get_lang(_), user_id=user.id)
 
@@ -136,8 +132,8 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
     user = User.objects.get(user_id=user_id)
     description = message.text
 
-    type = Event.TYPE_SANTA  # todo: check this
-    if re.match('(nicholas)|(nicolaus)|(миколай)', name + '\n' + description, re.IGNORECASE):
+    type = Event.TYPE_SANTA
+    if re.search('(nicholas)|(nicolaus)|(миколай)', name + '\n' + description, re.IGNORECASE):
         type = Event.TYPE_SAINT_NICHOLAS
 
     event = Event.objects.create(
@@ -146,12 +142,14 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
         name=name,
         description=description,
     )
-    Participant.objects.create(user=user, event=event)
+    toggle_user_for_event(user, event, _)
 
     bot.send_message(
         user.id,
         _('Success! To manage your events, use /events'),
     )
+    msg, db_msg = bot.send_message(user.id, '_')
+    event_selected(msg, user, _, event.id)
 
 
 @bot.message_handler(commands=['events'])
@@ -160,6 +158,9 @@ def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, back=
     edit_id = False
     if isinstance(msg_cbq, CallbackQuery):
         message = msg_cbq.message
+    else:
+        message = msg_cbq
+    if not message.from_user.is_bot:
         edit_id = (message.message_id, message.chat.id)
 
     events = user.admin_events
@@ -189,6 +190,9 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
     edit_id = False
     if isinstance(msg_cbq, CallbackQuery):
         message = msg_cbq.message
+    else:
+        message = msg_cbq
+    if not message.from_user.is_bot:
         edit_id = (message.message_id, message.chat.id)
 
     event = Event.objects.get(id=event_id)
@@ -206,7 +210,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         register_buttons = ()
 
     text = _('''
-Event "{event.name}"
+You are editing <b>{event.name}</b>
 Description:
 {event.description}
 
@@ -312,7 +316,7 @@ def distribute_participants(event: Event):
     for participant in participants_receivers:
         _ = get_trans(participant.user.language_code)
 
-        bot.send_message(
+        msg, db_msg = bot.send_message(
             participant.user.id,
             _('''
 Hey! Event "{event.name}" started!
@@ -324,6 +328,7 @@ To send message to your Secret Santa, use /send_santa
 Provide here your wishes and address to collect your present!
 ''').format(event=event, buddy=participant.secret_good_buddy.user.to_html()),
         )
+        bot.pin_chat_message(participant.user.id, msg.message_id, True)
 
 
 @bot.callback_query_handler(callback.event_admin)
@@ -382,7 +387,7 @@ def chosen_inline_query(inline_request: ChosenInlineResult, user: User, _):
 def send_your_buddy_or_santa_start(message: Message, user: User, _):
     send_santa = message.text.startswith('/send_santa')
     if not user.participants.count():
-        return bot.send_message(user.id, _('Error: you have no events yet!'))
+        return bot.send_message(user.id, _('Error: you have no events yet or you need to choose your active event!'))
 
     participant = user.active_participant
     event = participant.event
@@ -424,3 +429,8 @@ def send_your_buddy_or_santa_message(message: Message, user_id, lang, receiver_i
     )
 
     bot.send_message(user.id, _('Message successfully sent!'))
+
+
+@bot.message_handler(func=lambda msg: msg.content_type not in ('pinned_message',))
+def any_message(message: Message, user: User, _):
+    bot.send_message(message.chat.id, _('Unrecognized command, see /help'))
