@@ -149,6 +149,8 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
         _('Success! To manage your events, use /events'),
     )
     msg, db_msg = bot.send_message(user.id, '_')
+    msg.from_user.is_bot = False
+
     event_selected(msg, user, _, event.id)
 
 
