@@ -1,0 +1,252 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-08 15:50+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: settings.py:104
+msgid "English"
+msgstr "English"
+
+#: settings.py:105
+msgid "Russian"
+msgstr "Russian"
+
+#: settings.py:106
+msgid "Ukrainian"
+msgstr "Ukrainian"
+
+#: telegram/bot.py:61
+msgid "Server Error"
+msgstr "Server Error"
+
+#: telegram/handlers.py:24
+#, python-brace-format
+msgid ""
+"\n"
+"Welcome to <b>{event.name}</b>\n"
+"{event.description}\n"
+"\n"
+"Participants:\n"
+"{participants}\n"
+"\n"
+"Click here to join or leave this event\n"
+msgstr ""
+"\n"
+"Welcome to <b>{event.name}</b>\n"
+"{event.description}\n"
+"\n"
+"Participants:\n"
+"{participants}\n"
+"\n"
+"Click here to join or leave this event\n"
+
+#: telegram/handlers.py:34
+#, python-brace-format
+msgid ""
+"\n"
+"Registration for <b>{event.name}</b> already closed!\n"
+"{event.description}\n"
+"\n"
+"Participants:\n"
+"{participants}\n"
+msgstr ""
+"\n"
+"Registration for <b>{event.name}</b> already closed!\n"
+"{event.description}\n"
+"\n"
+"Participants:\n"
+"{participants}\n"
+
+#: telegram/handlers.py:86
+#, python-brace-format
+msgid "You are successfully registered for <b>{event.name}</b>!"
+msgstr "You are successfully registered for <b>{event.name}</b>!"
+
+#: telegram/handlers.py:90
+#, python-brace-format
+msgid "You are successfully left <b>{event.name}</b> event"
+msgstr "You are successfully left <b>{event.name}</b> event"
+
+#: telegram/handlers.py:96
+msgid ""
+"\n"
+"Hi User!\n"
+"\n"
+"/send_buddy - Send a message to your Good buddy\n"
+"/send_santa - Send a message to your Secret Santa\n"
+"\n"
+"/start /help - Show this message\n"
+"/new_event - Create new Secret Santa event\n"
+"/events - Settings for your events\n"
+msgstr ""
+"\n"
+"Hi User!\n"
+"\n"
+"/send_buddy - Send a message to your Good buddy\n"
+"/send_santa - Send a message to your Secret Santa\n"
+"\n"
+"/start /help - Show this message\n"
+"/new_event - Create new Secret Santa event\n"
+"/events - Settings for your events\n"
+
+#: telegram/handlers.py:111
+msgid "Please, send name for your event below"
+msgstr "Please, send name for your event below"
+
+#: telegram/handlers.py:120
+msgid ""
+"\n"
+"Wow, very cool name!\n"
+"Please, now send description for your event below\n"
+"You may add here place and time of event, your contact, or other important "
+"info\n"
+msgstr ""
+"\n"
+"Wow, very cool name!\n"
+"Please, now send description for your event below\n"
+"You may add here place and time of event, your contact, or other important "
+"info\n"
+
+#: telegram/handlers.py:149
+msgid "Success! To manage your events, use /events"
+msgstr "Success! To manage your events, use /events"
+
+#: telegram/handlers.py:170
+msgid "You have no events created, create one with /new_event"
+msgstr "You have no events created, create one with /new_event"
+
+#: telegram/handlers.py:175
+msgid "Choose event to edit:"
+msgstr "Choose event to edit:"
+
+#: telegram/handlers.py:203
+msgid "Close registration"
+msgstr "Close registration"
+
+#: telegram/handlers.py:204
+msgid "Share event to join"
+msgstr "Share event to join"
+
+#: telegram/handlers.py:208
+msgid "Open registration"
+msgstr "Open registration"
+
+#: telegram/handlers.py:209
+msgid "Distribute participants"
+msgstr "Distribute participants"
+
+#: telegram/handlers.py:214
+#, python-brace-format
+msgid ""
+"\n"
+"You are editing <b>{event.name}</b>\n"
+"Description:\n"
+"{event.description}\n"
+"\n"
+"Type: {type}\n"
+"Status: {status}\n"
+"\n"
+"Participants:\n"
+"{participants}\n"
+msgstr ""
+"\n"
+"You are editing <b>{event.name}</b>\n"
+"Description:\n"
+"{event.description}\n"
+"\n"
+"Type: {type}\n"
+"Status: {status}\n"
+"\n"
+"Participants:\n"
+"{participants}\n"
+
+#: telegram/handlers.py:232
+msgid "Edit name"
+msgstr "Edit name"
+
+#: telegram/handlers.py:233
+msgid "Edit description"
+msgstr "Edit description"
+
+#: telegram/handlers.py:234
+msgid "Edit type"
+msgstr "Edit type"
+
+#: telegram/handlers.py:251
+#, python-brace-format
+msgid "Send new {type} below"
+msgstr "Send new {type} below"
+
+#: telegram/handlers.py:259
+#, python-brace-format
+msgid "You successfully updated {type}"
+msgstr "You successfully updated {type}"
+
+#: telegram/handlers.py:268
+msgid "Select new type here"
+msgstr "Select new type here"
+
+#: telegram/handlers.py:323
+#, python-brace-format
+msgid ""
+"\n"
+"Hey! Event \"{event.name}\" started!\n"
+"Your secret good buddy, whom you need to send a gift is:\n"
+"{buddy}\n"
+"To send them a message, use /send_buddy\n"
+"\n"
+"To send message to your Secret Santa, use /send_santa\n"
+"Provide here your wishes and address to collect your present!\n"
+msgstr ""
+"\n"
+"Hey! Event \"{event.name}\" started!\n"
+"Your secret good buddy, whom you need to send a gift is:\n"
+"{buddy}\n"
+"To send them a message, use /send_buddy\n"
+"\n"
+"To send message to your Secret Santa, use /send_santa\n"
+"Provide here your wishes and address to collect your present!\n"
+
+#: telegram/handlers.py:392
+msgid "Error: you have no events yet or you need to choose your active event!"
+msgstr "Error: you have no events yet or you need to choose your active event!"
+
+#: telegram/handlers.py:398
+msgid "Error: event does not start yet!"
+msgstr "Error: event does not start yet!"
+
+#: telegram/handlers.py:402
+#, python-brace-format
+msgid "Send any message to your {type}"
+msgstr "Send any message to your {type}"
+
+#: telegram/handlers.py:402
+msgid "Secret Santa"
+msgstr "Secret Santa"
+
+#: telegram/handlers.py:402
+msgid "Secret Good Buddy"
+msgstr "Secret Good Buddy"
+
+#: telegram/handlers.py:433
+msgid "Message successfully sent!"
+msgstr "Message successfully sent!"
+
+#: telegram/handlers.py:438
+msgid "Unrecognized command, see /help"
+msgstr "Unrecognized command, see /help"
