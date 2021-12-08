@@ -7,7 +7,7 @@ from django.db import DatabaseError
 from telebot import TeleBot, types, logger
 from telebot.apihelper import ApiException, ApiTelegramException
 
-from .hander_backends import DjangoHandlerBackend
+from .handler_backends import DjangoHandlerBackend
 from .utils import JSON_COMMON_DATA, get_trans
 from ..models import Message, User
 

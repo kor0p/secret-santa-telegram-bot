@@ -14,6 +14,8 @@ import os
 
 import django_heroku
 
+from django.utils.translation import gettext_lazy as _
+
 
 AUTH_USER_MODEL = 'bot.AuthUser'
 
@@ -97,6 +99,16 @@ DATABASES = {}
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('ru', _('Russian')),
+    ('uk', _('Ukrainian')),
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 TIME_ZONE = 'UTC'
 
