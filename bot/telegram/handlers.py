@@ -23,7 +23,7 @@ def get_join_button_text(event, _):
     if event.status == event.STATUS_REGISTER_OPEN:
         return _('''
 Welcome to <b>{event.name}</b>
-{event.description}
+<pre>{event.description}</pre>
 
 Participants:
 {participants}
@@ -33,7 +33,7 @@ Click here to join or leave this event
     else:
         return _('''
 Registration for <b>{event.name}</b> already closed!
-{event.description}
+<pre>{event.description}</pre>
 
 Participants:
 {participants}
@@ -133,7 +133,7 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
     description = message.text
 
     type = Event.TYPE_SANTA
-    if re.search('(nicholas)|(nicolaus)|(миколай)', name + '\n' + description, re.IGNORECASE):
+    if re.search('(nicholas)|(nicolaus)|(миколай)|(николай)', name + '\n' + description, re.IGNORECASE):
         type = Event.TYPE_SAINT_NICHOLAS
 
     event = Event.objects.create(
@@ -162,7 +162,7 @@ def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, back=
         message = msg_cbq.message
     else:
         message = msg_cbq
-    if not message.from_user.is_bot:
+    if message.from_user.is_bot:
         edit_id = (message.message_id, message.chat.id)
 
     events = user.admin_events
@@ -194,7 +194,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         message = msg_cbq.message
     else:
         message = msg_cbq
-    if not message.from_user.is_bot:
+    if message.from_user.is_bot:
         edit_id = (message.message_id, message.chat.id)
 
     event = Event.objects.get(id=event_id)
@@ -214,7 +214,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
     text = _('''
 You are editing <b>{event.name}</b>
 Description:
-{event.description}
+<pre>{event.description}</pre>
 
 Type: {type}
 Status: {status}
