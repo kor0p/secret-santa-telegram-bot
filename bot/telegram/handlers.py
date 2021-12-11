@@ -21,9 +21,9 @@ admin_users = json.loads(os.environ.get('ADMIN_IDS'))
 
 def get_event_lang(event: Event):
     users = User.objects.filter(participants__event_id=event.id)
-    langs = [user.language_code for user in users]
+    langs = {user.language_code for user in users}
     if not langs:  # wtf?)
-        langs = ['en']
+        langs = {'en'}
     _ = get_multi_trans(*langs)
     return _
 
@@ -35,7 +35,7 @@ def get_join_button_text(event):
     if event.status == event.STATUS_REGISTER_OPEN:
         return (
             _('Welcome to') + f' <b>{event.name}</b>\n{event.description}\n\n' +
-            _('Participants') + ':\n' + participants_text +
+            _('Participants') + ':\n' + participants_text + '\n' +
             _('Click here to join this event')
         )
     else:
