@@ -3,6 +3,7 @@ import random
 from enum import Enum
 from typing import Union
 import string
+from functools import partial
 
 from telebot import types
 from django.utils.translation.trans_real import translation
@@ -13,6 +14,15 @@ JSON_COMMON_DATA = Union[list[...], dict[str, ...], int, str]
 
 def get_trans(lang):
     return translation(lang).gettext
+
+
+def multi_gettext(get_text_list, text, sep='\n'):
+    return sep.join(get_text(text) for get_text in get_text_list)
+
+
+def get_multi_trans(*langs):
+    get_text_list = [get_lang(lang) for lang in langs]
+    return partial(multi_gettext, get_text_list)
 
 
 def get_lang(gettext):
@@ -60,6 +70,8 @@ class callback(Enum):
     event_admin_edit = ('eae', int, str)  # event_id, edit_type
     event_admin_type = ('eat', int)  # event_id
     event_admin_type_edit = ('eate', int, str)  # event_id, type
+    event_user_set_active = ('eusa', int)  # user event settings - set active -- event_id
+    event_user_unsub = ('eus', int, int)  # user event settings - leave -- event_id, step
 
     def create(self, *data: JSON_COMMON_DATA) -> str:
         return json.dumps([self.value[0], data], separators=(',', ':'))
