@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-11 11:13+0000\n"
+"POT-Creation-Date: 2021-12-11 19:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -288,107 +288,113 @@ msgstr "Set this event as Active"
 msgid "Leave"
 msgstr "Leave"
 
-#: telegram/handlers.py:315
+#: telegram/handlers.py:318
 msgid "Close registration"
 msgstr "Close registration"
 
-#: telegram/handlers.py:316
+#: telegram/handlers.py:319
 msgid "Share event to join"
 msgstr "Share event to join"
 
-#: telegram/handlers.py:320
+#: telegram/handlers.py:323
 msgid "Open registration"
 msgstr "Open registration"
 
-#: telegram/handlers.py:322
+#: telegram/handlers.py:325
 msgid "Distribute participants"
 msgstr "Distribute participants"
 
-#: telegram/handlers.py:332
+#: telegram/handlers.py:335
 msgid "Edit name"
 msgstr "Edit name"
 
-#: telegram/handlers.py:333
+#: telegram/handlers.py:336
 msgid "Edit description"
 msgstr "Edit description"
 
-#: telegram/handlers.py:334
+#: telegram/handlers.py:337
 msgid "Edit type"
 msgstr "Edit type"
 
-#: telegram/handlers.py:362
+#: telegram/handlers.py:365
 msgid "No"
 msgstr "No"
 
-#: telegram/handlers.py:363
+#: telegram/handlers.py:366
 msgid "Nope, nevermind"
 msgstr "Nope, nevermind"
 
-#: telegram/handlers.py:364
+#: telegram/handlers.py:367
 msgid "Yes, I want to leave"
 msgstr "Yes, I want to leave"
 
-#: telegram/handlers.py:370
+#: telegram/handlers.py:373
 msgid "You want to leave"
 msgstr "You want to leave"
 
-#: telegram/handlers.py:370
+#: telegram/handlers.py:373
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: telegram/handlers.py:388
+#: telegram/handlers.py:385
+#, fuzzy
+#| msgid "You are successfully left <b>{event.name}</b> event"
+msgid "You successfully left event"
+msgstr "You successfully left event"
+
+#: telegram/handlers.py:392
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new name below"
 msgstr "Send new name below"
 
-#: telegram/handlers.py:390
+#: telegram/handlers.py:394
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new description below"
 msgstr "Send new description below"
 
-#: telegram/handlers.py:399
+#: telegram/handlers.py:403
 #, fuzzy
 #| msgid "You successfully updated {type}"
 msgid "Event was successfully updated"
 msgstr "Event was successfully updated"
 
-#: telegram/handlers.py:408
+#: telegram/handlers.py:412
 msgid "Select new type here"
 msgstr "Select new type here"
 
-#: telegram/handlers.py:466
+#: telegram/handlers.py:470
 msgid "Hey! Event"
 msgstr "Hey! Event"
 
-#: telegram/handlers.py:466
+#: telegram/handlers.py:470
 msgid "started!"
 msgstr "started!"
 
-#: telegram/handlers.py:467
+#: telegram/handlers.py:471
 msgid "Your secret good buddy, whom you need to send a gift is:"
 msgstr "Your secret good buddy, whom you need to send a gift is:"
 
-#: telegram/handlers.py:469
+#: telegram/handlers.py:473
 msgid "To send them a message, use /send_buddy"
 msgstr "To send them a message, use /send_buddy"
 
-#: telegram/handlers.py:470
+#: telegram/handlers.py:474
 #, fuzzy
 #| msgid "Send any message to your {type}"
 msgid "To send message"
 msgstr "To send message"
 
-#: telegram/handlers.py:470
+#: telegram/handlers.py:474
 msgid "use"
 msgstr "use"
 
-#: telegram/handlers.py:471
+#: telegram/handlers.py:475
 msgid "Provide here your wishes and address to collect your present!"
 msgstr "Provide here your wishes and address to collect your present!"
 
-#: telegram/handlers.py:532
+#: telegram/handlers.py:536
 msgid "Unrecognized command, see /help"
 msgstr "Unrecognized command, see /help"
 
@@ -444,11 +450,6 @@ msgstr "Unrecognized command, see /help"
 #~ "\n"
 #~ "Participants:\n"
 #~ "{participants}\n"
-
-#, fuzzy
-#~| msgid "You are successfully left <b>{event.name}</b> event"
-#~ msgid "You successfully left event"
-#~ msgstr "You are successfully left <b>{event.name}</b> event"
 
 #~ msgid "Choose event to edit:"
 #~ msgstr "Choose event to edit:"
