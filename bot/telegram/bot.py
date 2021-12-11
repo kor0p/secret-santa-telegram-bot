@@ -140,11 +140,27 @@ class ExtraTeleBot(TeleBot):
         message: types.MessageID = super().copy_message(*args, **kwargs)
         return message.message_id
 
+    def _notify_next_handlers(self, new_messages):
+        for i, message in enumerate(new_messages):
+            if getattr(message, 'text', '').startswith('/'):
+                continue
+
+            need_pop = False
+            handlers = self.next_step_backend.get_handlers(message.chat.id)
+            if handlers:
+                for handler in handlers:
+                    need_pop = True
+                    self._exec_task(handler["callback"], message, *handler["args"], **handler["kwargs"])
+            if need_pop:
+                new_messages.pop(i)  # removing message that was detected with next_step_handler
+
     def _notify_command_handlers(self, handlers, new_messages):
         if len(handlers) == 0:
             return
         for message in new_messages:
             Message.add_tg_message(message)
+            if hasattr(message, 'chat'):
+                self.clear_step_handler_by_chat_id(message.chat.id)
             for message_handler in handlers:
                 if self._test_message_handler(message_handler, message):
                     user = User.create_from_tg(message.from_user)[0]

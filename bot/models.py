@@ -9,7 +9,6 @@ from django.db.models import (
     Model,
     DO_NOTHING,
     SET_NULL,
-    QuerySet,
     Min,
     ForeignKey,
     OneToOneField,
@@ -19,6 +18,7 @@ from django.db.models import (
     CharField,
     TextField,
     JSONField,
+    DateTimeField,
 )
 from django.contrib.auth.models import AbstractUser
 from django.utils.safestring import mark_safe
@@ -49,11 +49,6 @@ class AuthUser(AbstractUser):
 NOT_REQUIRED = dict(null=True, blank=True)
 
 
-class ReverseRelationQuerySet(QuerySet):
-    def add(self, *objs: Base, bulk: bool = False):
-        ...
-
-
 class BaseManager(Manager):
     def get(self, **kwargs) -> Optional[Base]:
         try:
@@ -62,8 +57,16 @@ class BaseManager(Manager):
             return None
 
 
+class ReverseRelation(BaseManager):
+    def add(self, *objs: Base, bulk: bool = False):
+        ...
+
+
 class Base(Model):
     objects = BaseManager()
+
+    created_at = DateTimeField(auto_now_add=True)
+    updated_at = DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -86,9 +89,9 @@ class User(Base):
     active_participant = OneToOneField('Participant', **NOT_REQUIRED, on_delete=SET_NULL, related_name='_active_user')
 
     user = OneToOneField(AuthUser, on_delete=DO_NOTHING, related_name='tg_user', primary_key=True)
-    messages: ReverseRelationQuerySet[Message]
-    participants: ReverseRelationQuerySet[Participant]
-    admin_events: ReverseRelationQuerySet[Event]
+    messages: ReverseRelation[Message]
+    participants: ReverseRelation[Participant]
+    admin_events: ReverseRelation[Event]
 
     @property
     def id(self):
@@ -206,11 +209,46 @@ class Event(Base):
     name = CharField(max_length=256)
     description = TextField(max_length=2048)
 
-    participants: ReverseRelationQuerySet[Participant]
-    messages: ReverseRelationQuerySet[Message]
+    participants: ReverseRelation[Participant]
+    messages: ReverseRelation[Message]
 
     def __str__(self):
         return f'Event({self.name}, {self.description[:100]}, by {self.admin})'
+
+    def get_type_text(self, prefix, _):
+        if self.type == self.TYPE_SANTA:
+            if prefix == 'to':
+                return _('to Secret Santa')
+            elif prefix == 'from':
+                return _('from Secret Santa')
+            elif prefix == '':
+                return _('Secret Santa')
+        elif self.type == self.TYPE_SAINT_NICHOLAS:
+            if prefix == 'to':
+                return _('to Saint Nicholas')
+            elif prefix == 'from':
+                return _('from Saint Nicholas')
+            elif prefix == '':
+                return _('Saint Nicholas')
+        return _('UNDEFINED')
+
+    def get_type_command(self, _):
+        if self.type == self.TYPE_SANTA:
+            return '/send_santa'
+        elif self.type == self.TYPE_SAINT_NICHOLAS:
+            return '/send_nicholas'
+        else:
+            return _('UNDEFINED')
+
+    def get_status_text(self, _):
+        if self.status == self.STATUS_REGISTER_OPEN:
+            return _('Register opened')
+        elif self.status == self.STATUS_REGISTER_CLOSED:
+            return _('Register closed')
+        elif self.status == self.STATUS_PARTICIPANTS_DISTRIBUTED:
+            return _('Event already started')
+        else:
+            return _('UNDEFINED')
 
 
 class Participant(Base):
