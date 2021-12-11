@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-11 11:13+0000\n"
+"POT-Creation-Date: 2021-12-11 19:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -271,108 +271,114 @@ msgstr "Зробити активним"
 msgid "Leave"
 msgstr "Вийти"
 
-#: telegram/handlers.py:315
+#: telegram/handlers.py:318
 msgid "Close registration"
 msgstr "Закрити реєстрацію"
 
-#: telegram/handlers.py:316
+#: telegram/handlers.py:319
 msgid "Share event to join"
 msgstr "Поділитись подією"
 
-#: telegram/handlers.py:320
+#: telegram/handlers.py:323
 msgid "Open registration"
 msgstr "Відкрити реєстрацію"
 
-#: telegram/handlers.py:322
+#: telegram/handlers.py:325
 msgid "Distribute participants"
 msgstr "Розподілити учасників"
 
-#: telegram/handlers.py:332
+#: telegram/handlers.py:335
 msgid "Edit name"
 msgstr "Змінити ім'я"
 
-#: telegram/handlers.py:333
+#: telegram/handlers.py:336
 msgid "Edit description"
 msgstr "Змінити опис"
 
-#: telegram/handlers.py:334
+#: telegram/handlers.py:337
 msgid "Edit type"
 msgstr "Змінити тип"
 
-#: telegram/handlers.py:362
+#: telegram/handlers.py:365
 msgid "No"
 msgstr "Ніт"
 
-#: telegram/handlers.py:363
+#: telegram/handlers.py:366
 msgid "Nope, nevermind"
 msgstr "Боже, точно ні"
 
-#: telegram/handlers.py:364
+#: telegram/handlers.py:367
 msgid "Yes, I want to leave"
 msgstr "Так, я хочу вийти"
 
-#: telegram/handlers.py:370
+#: telegram/handlers.py:373
 msgid "You want to leave"
 msgstr "Ти хочеш вийти з події"
 
-#: telegram/handlers.py:370
+#: telegram/handlers.py:373
 msgid "Are you sure?"
 msgstr "Ти впевнений?"
 
-#: telegram/handlers.py:388
+#: telegram/handlers.py:385
+#, fuzzy
+#| msgid "You are successfully left <b>{event.name}</b> event"
+msgid "You successfully left event"
+msgstr "Ви успішно вийшли з події"
+
+#: telegram/handlers.py:392
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new name below"
 msgstr "Надішліть нове ім'я нижче"
 
-#: telegram/handlers.py:390
+#: telegram/handlers.py:394
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new description below"
 msgstr "Надішліть новий опис нижче"
 
-#: telegram/handlers.py:399
+#: telegram/handlers.py:403
 #, fuzzy
 #| msgid "You successfully updated {type}"
 msgid "Event was successfully updated"
 msgstr "Подія успішно збережена"
 
-#: telegram/handlers.py:408
+#: telegram/handlers.py:412
 msgid "Select new type here"
 msgstr "Оберіть новий тип нижче"
 
-#: telegram/handlers.py:466
+#: telegram/handlers.py:470
 msgid "Hey! Event"
 msgstr "Вітаю! Подія"
 
-#: telegram/handlers.py:466
+#: telegram/handlers.py:470
 msgid "started!"
 msgstr "почалась!"
 
-#: telegram/handlers.py:467
+#: telegram/handlers.py:471
 msgid "Your secret good buddy, whom you need to send a gift is:"
 msgstr "Твій Щасливчик, якому ти маєш щось подарувати:"
 
-#: telegram/handlers.py:469
+#: telegram/handlers.py:473
 msgid "To send them a message, use /send_buddy"
 msgstr "Написати йому можна через /send_buddy"
 
-#: telegram/handlers.py:470
+#: telegram/handlers.py:474
 #, fuzzy
 #| msgid "Send any message to your {type}"
 msgid "To send message"
 msgstr "Щоб написати"
 
-#: telegram/handlers.py:470
+#: telegram/handlers.py:474
 msgid "use"
 msgstr "тисни"
 
-#: telegram/handlers.py:471
+#: telegram/handlers.py:475
 msgid "Provide here your wishes and address to collect your present!"
 msgstr ""
 "Напиши йому листа з твоїми побажаннями чи адресою для отримання подарунку!"
 
-#: telegram/handlers.py:532
+#: telegram/handlers.py:536
 msgid "Unrecognized command, see /help"
 msgstr "Невідома команда, див. /help"
 
@@ -425,11 +431,6 @@ msgstr "Невідома команда, див. /help"
 #~ "\n"
 #~ "Учасники:\n"
 #~ "{participants}\n"
-
-#, fuzzy
-#~| msgid "You are successfully left <b>{event.name}</b> event"
-#~ msgid "You successfully left event"
-#~ msgstr "Ви успішно покинули подію <b>{event.name}</b>"
 
 #~ msgid "Choose event to edit:"
 #~ msgstr "Оберіть подію для управління:"

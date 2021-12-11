@@ -225,7 +225,7 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
 
 @bot.message_handler(commands=['events'])
 @bot.callback_query_handler(cb.events_main)
-def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, back=False):
+def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, back=False, set_active=False):
     edit_id = False
     if isinstance(msg_cbq, CallbackQuery):
         message = msg_cbq.message
@@ -234,7 +234,7 @@ def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, back=
     if message.from_user.is_bot:
         edit_id = (message.message_id, message.chat.id)
 
-    events = Event.objects.filter(participants__user_id=user.id)
+    events = Event.objects.filter(Q(admin_id=user.id) | Q(participants__user_id=user.id)).distinct('id')
     if not events.exists():
         return bot.send_message(
             user.id,
@@ -248,7 +248,7 @@ or join someone else's event
     if events.count() == 1 and not back:
         return event_selected(msg_cbq, user, _, events.first().id)
 
-    active_event = user.active_participant and user.active_participant.event_id
+    active_event = user.active_participant_id and user.active_participant.event_id
 
     text = _('Your events:') + f'\n{STAR} - ' + _('your active event')
     if events.filter(admin_id=user.id).exists():
@@ -259,7 +259,7 @@ or join someone else's event
                 (STAR if event.id == active_event else '') +
                 (ADMIN if event.admin_id == user.id else '') +
                 event.name,
-                cb.events_settings.create(event.id),
+                cb.events_settings.create(event.id, False, set_active),
             )
             for event in events.all()
         ),
@@ -273,7 +273,7 @@ or join someone else's event
 
 
 @bot.callback_query_handler(cb.events_settings)
-def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_id: int, back=False):
+def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_id: int, back=False, set_active=False):
     edit_id = False
     if isinstance(msg_cbq, CallbackQuery):
         message = msg_cbq.message
@@ -283,6 +283,8 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         edit_id = (message.message_id, message.chat.id)
 
     event: Event = Event.objects.get(id=event_id)
+    if set_active:
+        user.active_participant = Participant.objects.get(event_id=event_id, user_id=user.id)
     is_admin = event.admin_id == user.id
     is_active_event = user.active_participant and user.active_participant.event_id == event_id
 
@@ -305,7 +307,10 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         (_('Set this event as Active'), cb.event_user_set_active.create(event_id)),
 
         (_('Leave'), cb.event_user_unsub.create(event_id, 0))
-        if event.status == event.STATUS_REGISTER_OPEN and event.participants.count() > 1 else
+        if event.status == event.STATUS_REGISTER_OPEN
+        and event.participants.count() > 1
+        # and event.admin_id != user.id  # can admin leave own event?
+        else
         (),
     )
 
@@ -375,11 +380,15 @@ def event_user_unsub(cbq: CallbackQuery, user: User, _, event_id: int, step: int
     participant = Participant.objects.get(user_id=user.id, event_id=event_id)
     if participant:
         participant.delete()
-        other_participants = Participant.objects.filter(user_id=user.id, event_id=event_id).order_by('-created_at')
+        other_participants = Participant.objects.filter(user_id=user.id).order_by('-created_at')
         if other_participants.exists():
             user.active_participant = other_participants.first()
+        else:
+            user.active_participant = None
+        user.save()
         sync_event(event)
-    event_selected(cbq, user, _, event_id)
+        bot.send_message(user.id, _('You successfully left event') + f' <b>{event.name}</b>')
+    events_settings(cbq, user, _, True, True)
 
 
 @bot.callback_query_handler(cb.event_admin_edit)
