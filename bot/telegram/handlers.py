@@ -310,7 +310,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         (_('Set this event as Active'), cb.event_user_set_active.create(event_id)),
 
         (_('Leave'), cb.event_user_unsub.create(event_id, 0))
-        if event.status == event.STATUS_REGISTER_OPEN else
+        if event.status == event.STATUS_REGISTER_OPEN and event.participants.count() > 1 else
         (),
     )
 
@@ -323,7 +323,11 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         elif event.status == Event.STATUS_REGISTER_CLOSED:
             register_buttons = (
                 (_('Open registration'), cb.event_admin.create(event_id, 'register_open')),
-                (_('Distribute participants'), cb.event_admin.create(event_id, 'distribute_users')),
+                (
+                    (_('Distribute participants'), cb.event_admin.create(event_id, 'distribute_users'))
+                    if event.participants.count() > 1
+                    else ()
+                ),
             )
         else:
             register_buttons = ()
