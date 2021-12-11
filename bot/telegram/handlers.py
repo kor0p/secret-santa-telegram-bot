@@ -251,7 +251,7 @@ or join someone else's event
     active_event = user.active_participant and user.active_participant.event_id
 
     text = _('Your events:') + f'\n{STAR} - ' + _('your active event')
-    if events.get(admin_id=user.id):
+    if events.filter(admin_id=user.id).exists():
         text += f'\n{ADMIN} - ' + _('you are admin there')
     buttons = inline_buttons(
         (

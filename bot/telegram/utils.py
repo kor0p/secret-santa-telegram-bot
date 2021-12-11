@@ -21,7 +21,7 @@ def multi_gettext(get_text_list, text, sep='\n'):
 
 
 def get_multi_trans(*langs):
-    get_text_list = [get_lang(lang) for lang in langs]
+    get_text_list = [get_trans(lang) for lang in langs]
     return partial(multi_gettext, get_text_list)
 
 
