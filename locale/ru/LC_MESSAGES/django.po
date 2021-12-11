@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-11 10:35+0000\n"
+"POT-Creation-Date: 2021-12-11 11:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,7 +94,7 @@ msgstr "Ошибка сервера"
 msgid "Welcome to"
 msgstr "Приветствуем в"
 
-#: telegram/handlers.py:38 telegram/handlers.py:45 telegram/handlers.py:304
+#: telegram/handlers.py:38 telegram/handlers.py:45 telegram/handlers.py:299
 #, fuzzy
 #| msgid "Distribute participants"
 msgid "Participants"
@@ -185,41 +185,26 @@ msgid "To leave event, use /events"
 msgstr "Покинуть мероприятия можна здесь /events"
 
 #: telegram/handlers.py:171
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "Hi User!\n"
-#| "\n"
-#| "/send_buddy - Send a message to your Good buddy\n"
-#| "/send_santa - Send a message to your Secret Santa\n"
-#| "\n"
-#| "/start /help - Show this message\n"
-#| "/new_event - Create new Secret Santa event\n"
-#| "/events - Settings for your events\n"
-msgid ""
-"\n"
-"Hi User!\n"
-"\n"
-"/start /help - Show this message\n"
-"\n"
-"/new_event - Create new Secret Santa event\n"
-"\n"
-"/events - Settings for your events\n"
-msgstr ""
-"\n"
-"Добро пожаловать!\n"
-"\n"
-"/start /help - Показать это сообщение\n"
-"\n"
-"/new_event - Создать новое мероприятие\n"
-"\n"
-"/events - Настройки мероприятий\n"
+msgid "Hi User"
+msgstr "Добро пожаловать!"
 
-#: telegram/handlers.py:185
+#: telegram/handlers.py:172
+msgid "/start /help - Show this message"
+msgstr "/start /help - Показать это сообщение"
+
+#: telegram/handlers.py:173
+msgid "/new_event - Create new Secret Santa event"
+msgstr "/new_event - Создать новое мероприятие"
+
+#: telegram/handlers.py:174
+msgid "/events - Settings for your events"
+msgstr "/events - Настройки мероприятий"
+
+#: telegram/handlers.py:180
 msgid "Please, send name for your event below"
 msgstr "Пожалуйста, выберите название для вашего мероприятия"
 
-#: telegram/handlers.py:194
+#: telegram/handlers.py:189
 msgid ""
 "\n"
 "Wow, very cool name!\n"
@@ -233,11 +218,11 @@ msgstr ""
 "Оставьте ваш контакт, время мероприятия, правила или другую важную "
 "информацию\n"
 
-#: telegram/handlers.py:223
+#: telegram/handlers.py:218
 msgid "Success! To manage your events, use /events"
 msgstr "Поздоровляю! Теперь вы можете настроить ваши мероприятия здесь /events"
 
-#: telegram/handlers.py:246
+#: telegram/handlers.py:241
 #, fuzzy
 #| msgid "You have no events created, create one with /new_event"
 msgid ""
@@ -247,155 +232,185 @@ msgid ""
 "or join someone else's event\n"
 msgstr "У вас нет мероприятий, создайте новое здесь /new_event"
 
-#: telegram/handlers.py:258
+#: telegram/handlers.py:253
 msgid "Your events:"
 msgstr "Ваши мероприятия:"
 
-#: telegram/handlers.py:258
+#: telegram/handlers.py:253
 msgid "your active event"
 msgstr "ваше активное мероприятие"
 
-#: telegram/handlers.py:260
+#: telegram/handlers.py:255
 msgid "you are admin there"
 msgstr "вы здесь админ"
 
-#: telegram/handlers.py:295
+#: telegram/handlers.py:290
 msgid "This is your active event"
 msgstr "Это ваше активное мероприятие"
 
-#: telegram/handlers.py:297
+#: telegram/handlers.py:292
 msgid "You are editing event"
 msgstr "Вы настраиваете мероприятие"
 
-#: telegram/handlers.py:299
+#: telegram/handlers.py:294
 msgid "You are viewing event"
 msgstr "Вы просматриваете мероприятие"
 
-#: telegram/handlers.py:301
+#: telegram/handlers.py:296
 #, fuzzy
 #| msgid "Edit description"
 msgid "Description"
 msgstr "Описание"
 
-#: telegram/handlers.py:302
+#: telegram/handlers.py:297
 msgid "Type Of Event"
 msgstr "Тип мероприятия"
 
-#: telegram/handlers.py:303
+#: telegram/handlers.py:298
 msgid "Status Of Event"
 msgstr "Статус мероприятия"
 
-#: telegram/handlers.py:310
+#: telegram/handlers.py:305
 msgid "Set this event as Active"
 msgstr "Сделать активним"
 
-#: telegram/handlers.py:312
+#: telegram/handlers.py:307
 msgid "Leave"
 msgstr "Покинуть"
 
-#: telegram/handlers.py:320
+#: telegram/handlers.py:315
 msgid "Close registration"
 msgstr "Закрыть регистрацию"
 
-#: telegram/handlers.py:321
+#: telegram/handlers.py:316
 msgid "Share event to join"
 msgstr "Поделитесь мероприятием"
 
-#: telegram/handlers.py:325
+#: telegram/handlers.py:320
 msgid "Open registration"
 msgstr "Открыть регистрацию"
 
-#: telegram/handlers.py:326
+#: telegram/handlers.py:322
 msgid "Distribute participants"
 msgstr "Распределить участников"
 
-#: telegram/handlers.py:333
+#: telegram/handlers.py:332
 msgid "Edit name"
 msgstr "Изменить имя"
 
-#: telegram/handlers.py:334
+#: telegram/handlers.py:333
 msgid "Edit description"
 msgstr "Изменить описание"
 
-#: telegram/handlers.py:335
+#: telegram/handlers.py:334
 msgid "Edit type"
 msgstr "Изменить тип"
 
-#: telegram/handlers.py:363
+#: telegram/handlers.py:362
 msgid "No"
 msgstr "Нет"
 
-#: telegram/handlers.py:364
+#: telegram/handlers.py:363
 msgid "Nope, nevermind"
 msgstr "Точно нет"
 
-#: telegram/handlers.py:365
+#: telegram/handlers.py:364
 msgid "Yes, I want to leave"
 msgstr "Да, я хочу уйти"
 
-#: telegram/handlers.py:371
+#: telegram/handlers.py:370
 msgid "You want to leave"
 msgstr "Вы хочете покинуть"
 
-#: telegram/handlers.py:371
+#: telegram/handlers.py:370
 msgid "Are you sure?"
 msgstr "Вы уверены"
 
-#: telegram/handlers.py:389
+#: telegram/handlers.py:388
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new name below"
 msgstr "Ваше новое имя"
 
-#: telegram/handlers.py:391
+#: telegram/handlers.py:390
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new description below"
 msgstr "Ваше новое описание"
 
-#: telegram/handlers.py:400
+#: telegram/handlers.py:399
 #, fuzzy
 #| msgid "You successfully updated {type}"
 msgid "Event was successfully updated"
 msgstr "Мероприятие успешно сохранено"
 
-#: telegram/handlers.py:409
+#: telegram/handlers.py:408
 msgid "Select new type here"
 msgstr "Выберите новый тип"
 
-#: telegram/handlers.py:467
+#: telegram/handlers.py:466
 msgid "Hey! Event"
 msgstr "Привет! Мероприятие"
 
-#: telegram/handlers.py:467
+#: telegram/handlers.py:466
 msgid "started!"
 msgstr "началось!"
 
-#: telegram/handlers.py:468
+#: telegram/handlers.py:467
 msgid "Your secret good buddy, whom you need to send a gift is:"
 msgstr "Твой Хороший приятель, которому ты должен принести подарок:"
 
-#: telegram/handlers.py:470
+#: telegram/handlers.py:469
 msgid "To send them a message, use /send_buddy"
 msgstr "Написать ему можна через /send_buddy"
 
-#: telegram/handlers.py:471
+#: telegram/handlers.py:470
 #, fuzzy
 #| msgid "Send any message to your {type}"
 msgid "To send message"
 msgstr "Чтобы написать"
 
-#: telegram/handlers.py:471
+#: telegram/handlers.py:470
 msgid "use"
 msgstr "жмите"
 
-#: telegram/handlers.py:472
+#: telegram/handlers.py:471
 msgid "Provide here your wishes and address to collect your present!"
 msgstr "Напиши ему свои пожелания или если нужно адрес, куда прислать подарок!"
 
-#: telegram/handlers.py:533
+#: telegram/handlers.py:532
 msgid "Unrecognized command, see /help"
 msgstr "Неизвестная команда, см. /help"
+
+#, fuzzy
+#~| msgid ""
+#~| "\n"
+#~| "Hi User!\n"
+#~| "\n"
+#~| "/send_buddy - Send a message to your Good buddy\n"
+#~| "/send_santa - Send a message to your Secret Santa\n"
+#~| "\n"
+#~| "/start /help - Show this message\n"
+#~| "/new_event - Create new Secret Santa event\n"
+#~| "/events - Settings for your events\n"
+#~ msgid ""
+#~ "\n"
+#~ "Hi User!\n"
+#~ "\n"
+#~ "/start /help - Show this message\n"
+#~ "\n"
+#~ "/new_event - Create new Secret Santa event\n"
+#~ "\n"
+#~ "/events - Settings for your events\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Добро пожаловать!\n"
+#~ "\n"
+#~ "/start /help - Показать это сообщение\n"
+#~ "\n"
+#~ "/new_event - Создать новое мероприятие\n"
+#~ "\n"
+#~ "/events - Настройки мероприятий\n"
 
 #~ msgid "Secret Good Buddy"
 #~ msgstr "Хороший приятель"

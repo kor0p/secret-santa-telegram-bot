@@ -168,15 +168,10 @@ def start_command(message: Message, user: User, _):
     # starting bot or help flow
     return bot.send_message(
         user.id,
-        _('''
-Hi User!
-
-/start /help - Show this message
-
-/new_event - Create new Secret Santa event
-
-/events - Settings for your events
-'''),
+        _('Hi User') + '\n\n' +
+        _('/start /help - Show this message') + '\n\n' +
+        _('/new_event - Create new Secret Santa event') + '\n\n' +
+        _('/events - Settings for your events'),
     )
 
 
