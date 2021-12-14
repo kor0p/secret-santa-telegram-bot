@@ -142,7 +142,7 @@ class ExtraTeleBot(TeleBot):
 
     def _notify_next_handlers(self, new_messages):
         for i, message in enumerate(new_messages):
-            if getattr(message, 'text', '').startswith('/'):
+            if (getattr(message, 'text', None) or '').startswith('/'):
                 continue
 
             need_pop = False
