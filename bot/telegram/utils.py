@@ -20,9 +20,9 @@ def multi_gettext(get_text_list, text, sep='\n'):
     return sep.join(get_text(text) for get_text in get_text_list)
 
 
-def get_multi_trans(*langs):
+def get_multi_trans(*langs, **kwargs):
     get_text_list = [get_trans(lang) for lang in langs]
-    return partial(multi_gettext, get_text_list)
+    return partial(multi_gettext, get_text_list, **kwargs)
 
 
 def get_lang(gettext):

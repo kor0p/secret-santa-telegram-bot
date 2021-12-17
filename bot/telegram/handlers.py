@@ -11,7 +11,7 @@ from telebot.types import (
 
 from .bot import bot, bot_user
 from .buttons import inline_buttons
-from .const import LINK_BTN, DOWN_ARROW, ADMIN, STAR
+from .const import LINK_BTN, DOWN_ARROW, ADMIN, STAR, LOCK
 from .utils import get_trans, get_lang, callback as cb, get_multi_trans
 from ..models import Event, User, Participant, Message as DBMessage, ForwardMessage
 
@@ -32,18 +32,33 @@ def get_join_button_text(event):
     _ = get_event_lang(event)
 
     participants_text = ', '.join(pt.user.to_html() for pt in event.participants.all())
-    if event.status == event.STATUS_REGISTER_OPEN:
-        return (
-            _('Welcome to') + f' <b>{event.name}</b>\n{event.description}\n\n' +
-            _('Participants') + ':\n' + participants_text + '\n' +
-            _('Click here to join this event')
-        )
-    else:
-        return (
-            _('Registration for') + f' <b>{event.name}</b> ' + _('already closed!') +
-            f'{event.description}\n\n' +
-            _('Participants') + ':\n' + participants_text
-        )
+    if event.status == Event.STATUS_REGISTER_OPEN:
+        return _('''
+Welcome to <b>{event.name}</b>
+{event.description}
+
+Participants:
+{participants_text}
+Click here to join this event
+''').format(event=event, participants_text=participants_text)
+    elif event.status in (Event.STATUS_REGISTER_CLOSED, Event.STATUS_PARTICIPANTS_DISTRIBUTED):
+        return _('''
+Registration for <b>{event.name}</b> already closed!
+{event.description}
+
+Participants:
+{participants_text}
+''').format(event=event, participants_text=participants_text)
+    elif event.status == Event.STATUS_ENDED:
+        return _('''
+Event <b>{event.name}</b> already ended!
+{event.description}
+
+Participants:
+{participants_text}
+''').format(event=event, participants_text=participants_text)
+
+    return ''
 
 
 def get_join_button_inline_buttons(event):
@@ -124,7 +139,7 @@ def send_your_buddy_or_santa_message(message: Message, user_id, lang, receiver_i
         bot.send_message(
             receiver.id,
             _('Event') + f' <b>{event.name}</b>\n' +
-            _('You received message') + ' ' + _('from Secret Good Buddy') + ' ' + user.to_html() + DOWN_ARROW,
+            _('You received message') + ' ' + _('from Secret Good Buddy') + ' ' + user.to_html() + ' ' + DOWN_ARROW,
             disable_web_page_preview=True,
         )
     else:
@@ -186,11 +201,14 @@ def new_event_command_name(message: Message, lang, user_id: int):
     _ = get_trans(lang)
     bot.send_message(
         user_id,
-        _('''
+        _(
+            '''
 Wow, very cool name!
 Please, now send description for your event below
 You may add here place and time of event, your contact, or other important info
-'''),
+You can use basic html, more info ''' +
+            ('<a href="https://core.telegram.org/bots/api#html-style">{here_text}</a>'.format(here_text=_('here')))
+        ),
     )
 
     bot.register_next(user_id, new_event_command_description, lang, user_id=user_id, name=message.text)
@@ -218,7 +236,6 @@ def new_event_command_description(message: Message, lang, user_id: int, name: st
         _('Success! To manage your events, use /events'),
     )
     msg, db_msg = bot.send_message(user.id, '_')
-    msg.from_user.is_bot = False
 
     event_selected(msg, user, _, event.id)
 
@@ -234,7 +251,12 @@ def events_settings(msg_cbq: Union[Message, CallbackQuery], user: User, _, back=
     if message.from_user.is_bot:
         edit_id = (message.message_id, message.chat.id)
 
-    events = Event.objects.filter(Q(admin_id=user.id) | Q(participants__user_id=user.id)).distinct('id')
+    events = (
+        Event.objects
+        .filter(Q(admin_id=user.id) | Q(participants__user_id=user.id))
+        .distinct('status', 'id')
+        .order_by('status', 'id')
+    )
     if not events.exists():
         return bot.send_message(
             user.id,
@@ -245,19 +267,27 @@ or join someone else's event
 ''')
         )
 
-    if events.count() == 1 and not back:
+    events_count = events.count()
+
+    if events_count == 1 and not back:
         return event_selected(msg_cbq, user, _, events.first().id)
 
     active_event = user.active_participant_id and user.active_participant.event_id
 
-    text = _('Your events:') + f'\n{STAR} - ' + _('your active event')
+    text = _('Your events:') + '\n'
+    if events_count > 1:
+        text += f'\n{STAR} - ' + _('your active event')
     if events.filter(admin_id=user.id).exists():
         text += f'\n{ADMIN} - ' + _('you are admin there')
+    if events.filter(status=Event.STATUS_ENDED).exists():
+        text += f'\n{LOCK} - ' + _('already ended')
+
     buttons = inline_buttons(
         (
             (
-                (STAR if event.id == active_event else '') +
+                (STAR if events_count > 1 and event.id == active_event else '') +
                 (ADMIN if event.admin_id == user.id else '') +
+                (LOCK if event.status == Event.STATUS_ENDED else '') +
                 event.name,
                 cb.events_settings.create(event.id, False, set_active),
             )
@@ -328,6 +358,10 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
                     if event.participants.count() > 1
                     else ()
                 ),
+            )
+        elif event.status == Event.STATUS_PARTICIPANTS_DISTRIBUTED:
+            register_buttons = (
+                (_('Close event'), cb.event_admin.create(event_id, 'end')),
             )
         else:
             register_buttons = ()
@@ -476,7 +510,8 @@ def distribute_participants(event: Event):
                 _('Your secret good buddy, whom you need to send a gift is:') + '\n' +
                 participant.secret_good_buddy.user.to_html() + '\n' +
                 _('To send them a message, use /send_buddy') + '\n\n' +
-                _('To send message') + f' {event.get_type_text("to", _)}, ' + _('use') + f' {event.get_type_command(_)}\n' +
+                _('To send message') +
+                f' {event.get_type_text("to", _)}, ' + _('use') + f' {event.get_type_command(_)}\n' +
                 _('Provide here your wishes and address to collect your present!')
             ),
             disable_web_page_preview=True,
@@ -485,18 +520,40 @@ def distribute_participants(event: Event):
 
 
 @bot.callback_query_handler(cb.event_admin)
-def event_admin(cbq: CallbackQuery, user: User, _, event_id: int, type: str):
+def event_admin(cbq: CallbackQuery, user: User, _, event_id: int, type: str, step: int = 0):
     event = Event.objects.get(id=event_id)
+    status = None
 
     if type == 'register_close':
-        event.update(status=Event.STATUS_REGISTER_CLOSED)
+        status = Event.STATUS_REGISTER_CLOSED
 
     if type == 'register_open':
-        event.update(status=Event.STATUS_REGISTER_OPEN)
+        status = Event.STATUS_REGISTER_OPEN
 
     if type == 'distribute_users':
         distribute_participants(event)
-        event.update(status=Event.STATUS_PARTICIPANTS_DISTRIBUTED)
+        status = Event.STATUS_PARTICIPANTS_DISTRIBUTED
+
+    if type == 'end':
+        if step < 2:
+            buttons = [
+                (_('No'), cb.events_settings.create(event_id, True)),
+                (_('Nope, nevermind'), cb.events_settings.create(event_id, True)),
+                (_('Yes, I want to end event'), cb.event_admin.create(event_id, type, step + 1)),
+            ]
+            shuffle(buttons)
+            bot.edit_message_text(
+                message_id=cbq.message.message_id,
+                chat_id=cbq.message.chat.id,
+                text=_('You want to end event') + f' <b>{event.name}</b>\n' + _('Are you sure?'),
+                reply_markup=inline_buttons(buttons, width=1, back=cb.events_settings.create(event_id, True)),
+            )
+            return
+        else:
+            status = Event.STATUS_ENDED
+
+    if status is not None:
+        event.update(status=status)
 
     sync_event(event)
     event_selected(cbq, user, _, event_id)
