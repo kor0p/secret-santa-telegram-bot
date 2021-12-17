@@ -196,10 +196,12 @@ class Event(Base):
     STATUS_REGISTER_OPEN = 0
     STATUS_REGISTER_CLOSED = 1
     STATUS_PARTICIPANTS_DISTRIBUTED = 2
+    STATUS_ENDED = 3
     STATUSES = (
         (STATUS_REGISTER_OPEN, 'Register opened'),
         (STATUS_REGISTER_CLOSED, 'Register closed'),
         (STATUS_PARTICIPANTS_DISTRIBUTED, 'Participants are already distributed'),
+        (STATUS_ENDED, 'Event ended'),
     )
 
     admin = ForeignKey(User, on_delete=DO_NOTHING, related_name='admin_events')
@@ -247,6 +249,8 @@ class Event(Base):
             return _('Register closed')
         elif self.status == self.STATUS_PARTICIPANTS_DISTRIBUTED:
             return _('Event already started')
+        elif self.status == self.STATUS_ENDED:
+            return _('Event already ended')
         else:
             return _('UNDEFINED')
 
