@@ -223,7 +223,11 @@ msgid ""
 "You have no events created\n"
 "Create one with /new_event\n"
 "or join someone else's event\n"
-msgstr "У тебе немає подій, створіть нове тут /new_event"
+msgstr ""
+"\n"
+"У тебе немає подій,\n"
+"створи нове тут /new_event\n"
+"або доєднайся до чужого за посиланням\n"
 
 #: telegram/handlers.py:253
 msgid "Your events:"
@@ -329,13 +333,13 @@ msgstr "Ви успішно вийшли з події"
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new name below"
-msgstr "Надішліть нове ім'я нижче"
+msgstr "Надішли нове ім'я нижче"
 
 #: telegram/handlers.py:394
 #, fuzzy
 #| msgid "Send new {type} below"
 msgid "Send new description below"
-msgstr "Надішліть новий опис нижче"
+msgstr "Надішли новий опис нижче"
 
 #: telegram/handlers.py:403
 #, fuzzy
@@ -345,7 +349,7 @@ msgstr "Подія успішно збережена"
 
 #: telegram/handlers.py:412
 msgid "Select new type here"
-msgstr "Оберіть новий тип нижче"
+msgstr "Обери новий тип нижче"
 
 #: telegram/handlers.py:470
 msgid "Hey! Event"

@@ -230,7 +230,11 @@ msgid ""
 "You have no events created\n"
 "Create one with /new_event\n"
 "or join someone else's event\n"
-msgstr "У вас нет мероприятий, создайте новое здесь /new_event"
+msgstr ""
+"\n"
+"У вас нет мероприятий\n"
+"Создайте новое /new_event\n"
+"или присоединитесь к чужому по ссылке\n"
 
 #: telegram/handlers.py:253
 msgid "Your events:"
