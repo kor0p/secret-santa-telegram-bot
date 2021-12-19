@@ -163,8 +163,15 @@ def send_your_buddy_or_santa_message(message: Message, user_id, lang, receiver_i
 @bot.message_handler(commands=['start', 'help'])
 def start_command(message: Message, user: User, _):
     command, *text = message.text.split(' ', 1)
-    if command == '/start' and text:  # ' ' is not absent in message.text -> register flow
-        event_id = int(text[0])
+    if command == '/start' and text and text[0]:  # ' ' is not absent in message.text -> register flow
+        data = text[0]
+        try:
+            event_id = int(data)
+        except ValueError:
+            # utm link flow
+            # TODO
+            message.text = '/start'
+            return start_command(message, user, _)
         event = Event.objects.get(id=event_id)
 
         if sub_user_for_event(user, event, _):
@@ -288,7 +295,7 @@ or join someone else's event
                 (STAR if events_count > 1 and event.id == active_event else '') +
                 (ADMIN if event.admin_id == user.id else '') +
                 (LOCK if event.status == Event.STATUS_ENDED else '') +
-                event.name,
+                f'{event.name} ({event.participants.count()})',
                 cb.events_settings.create(event.id, False, set_active),
             )
             for event in events.all()
@@ -314,7 +321,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
 
     event: Event = Event.objects.get(id=event_id)
     if set_active:
-        user.active_participant = Participant.objects.get(event_id=event_id, user_id=user.id)
+        user.update(active_participant=Participant.objects.get(event_id=event_id, user_id=user.id))
     is_admin = event.admin_id == user.id
     is_active_event = user.active_participant and user.active_participant.event_id == event_id
 
@@ -322,7 +329,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
         ((STAR + _('This is your active event') + f'{STAR}\n\n') if is_active_event else '') +
         (
             _('You are editing event')
-            if is_admin else
+            if is_admin and event.status < Event.STATUS_PARTICIPANTS_DISTRIBUTED else
             _('You are viewing event')
         ) + f' <b>{event.name}</b>\n' +
         _('Description') + f':\n{event.description}\n\n' +
@@ -334,7 +341,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
     buttons = (
         ()
         if is_active_event else
-        (_('Set this event as Active'), cb.event_user_set_active.create(event_id)),
+        (_('Set this event as Active') + ' ' + STAR, cb.event_user_set_active.create(event_id)),
 
         (_('Leave'), cb.event_user_unsub.create(event_id, 0))
         if event.status == event.STATUS_REGISTER_OPEN
@@ -361,18 +368,21 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
             )
         elif event.status == Event.STATUS_PARTICIPANTS_DISTRIBUTED:
             register_buttons = (
-                (_('Close event'), cb.event_admin.create(event_id, 'end')),
+                (_('Close event') + ' ' + LOCK, cb.event_admin.create(event_id, 'end')),
             )
         else:
             register_buttons = ()
 
-        buttons = (
-            *buttons,
-            (_('Edit name'), cb.event_admin_edit.create(event_id, 'name')),
-            (_('Edit description'), cb.event_admin_edit.create(event_id, 'description')),
-            (_('Edit type'), cb.event_admin_type.create(event_id)),
-            *register_buttons,
-        )
+        if event.status < event.STATUS_PARTICIPANTS_DISTRIBUTED:
+            edit_event_buttons = (
+                (_('Edit name'), cb.event_admin_edit.create(event_id, 'name')),
+                (_('Edit description'), cb.event_admin_edit.create(event_id, 'description')),
+                (_('Edit type'), cb.event_admin_type.create(event_id)),
+            )
+        else:
+            edit_event_buttons = ()
+
+        buttons = (*buttons, *edit_event_buttons, *register_buttons)
 
     buttons = inline_buttons(buttons, width=1, back=cb.events_main.create(True))
 
@@ -388,7 +398,7 @@ def event_selected(msg_cbq: Union[Message, CallbackQuery], user: User, _, event_
 def event_user_set_active(cbq: CallbackQuery, user: User, _, event_id: int):
     active_participant = Participant.objects.get(event_id=event_id, user_id=user.id)
     if active_participant:
-        user.active_participant = active_participant
+        user.update(active_participant=active_participant)
     event_selected(cbq, user, _, event_id)
 
 
@@ -427,10 +437,15 @@ def event_user_unsub(cbq: CallbackQuery, user: User, _, event_id: int, step: int
 
 @bot.callback_query_handler(cb.event_admin_edit)
 def event_admin_edit_start(message: Message, user: User, _, event_id: int, edit_type: str):
+    event = Event.objects.get(id=event_id)
+
     if edit_type == 'name':
-        text = _('Send new name below')
+        text = _('Send new name below\nCurrent name: ') + f'<pre>{event.name}</pre>'
+    elif edit_type == 'description':
+        text = _('Send new description below\nCurrent description:') + f'\n<pre>{event.description}</pre>'
     else:
-        text = _('Send new description below')
+        text = _('UNDEFINED')
+
     bot.send_message(user.id, text)
     bot.register_next(user.id, event_admin_edit, get_lang(_), user.id, event_id, edit_type)
 
